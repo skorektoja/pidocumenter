@@ -1,13 +1,15 @@
+#labels install,php
 #How to install the pi documenter tool. 
 
 = Introduction =
 
-Add your content here.
+How to install the libery on you computer
 
 
-= Details =
+= Steps =
 
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
+#  Download and install PHP from [http://www.php.net/downloads.php www.php.net]
+#  Download the pidocumenter release from the download page
+#  Extract the pidocumenter zip file to a directory
+#  Download PHPExcel from [http://phpexcel.codeplex.com/Release/ProjectReleases.aspx?ReleaseId=10715 codeplex]. Notice there is currently a problem with formatting on diff tool with release 1.6.7 so please use 1.6.6 instead. 
+#  Extract the PHPExcel. Copy the files from the zip files folder classes to the lib in the pidocument folder. It is the file PHPExcel.php and the folder (with subfolders) PHPExcel.

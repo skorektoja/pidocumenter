@@ -22,7 +22,7 @@
  * @package    pidocumenter
  * @copyright  Copyright (c) 2008 - 2009 pidocumenter (http://www.figaf.com/services/pi-documenter.html)
  * @license    http://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt	LGPL
- * @version    0.9 , 2009-04-28
+ * @version    0.9.1 , 2009-05-26
  */
 if ($argc < 4 || $argc > 5 || in_array($argv[1], array ('--help', '-help', '-h', '-?')))
 {

@@ -46,7 +46,7 @@ class Extract{
 
 		} else {
 			//try using unix unzip because a bug when exporting from Citrix. 
-			exec("\"C:\Program Files\Unixutils\usr\local\wbin\unzip.exe\" $directory/$filename -d $directory");
+			exec("unzip  $directory/$filename -d $directory");
 		}
 
 		$res = $zip->open($directory.'/ZIPPED_META_DATA.zip');

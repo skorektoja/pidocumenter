@@ -22,7 +22,7 @@
  * @package    pidocumenter
  * @copyright  Copyright (c) 2008 - 2009 pidocumenter (http://www.figaf.com/services/pi-documenter.html)
  * @license    http://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt	LGPL
- * @version    0.9 , 2009-04-28
+ * @version    0.9.1 , 2009-05-26
  */
 
 
@@ -44,7 +44,7 @@ This the pi diff tool.
 }
 
 	$scriptdir=  substr( $argv[0],  0, strripos($argv[0], "\\")); 
-
+  
 	set_include_path(get_include_path() . PATH_SEPARATOR . "$scriptdir\\..\\lib\\". PATH_SEPARATOR . "$scriptdir");
 	 include_once 'Documentation/MappingDiff.php';
 	   
@@ -54,6 +54,7 @@ This the pi diff tool.
 	 $newFilename = $argv[3];
 	 $format = $argv[4];
 	 
+	   
 	   
 
 	   

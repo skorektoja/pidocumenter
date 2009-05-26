@@ -23,7 +23,7 @@
  * @package    pidocumenter
  * @copyright  Copyright (c) 2008 - 2009 pidocumenter (http://www.figaf.com/services/pi-documenter.html)
  * @license    http://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt	LGPL
- * @version    0.9 , 2009-04-28
+ * @version    0.9.1 , 2009-05-26
  */
 
 /**
@@ -46,7 +46,7 @@ class Extract{
 
 		} else {
 			//try using unix unzip because a bug when exporting from Citrix. 
-			exec("unzip $directory/$filename -d $directory");
+			exec("\"C:\Program Files\Unixutils\usr\local\wbin\unzip.exe\" $directory/$filename -d $directory");
 		}
 
 		$res = $zip->open($directory.'/ZIPPED_META_DATA.zip');

@@ -22,7 +22,7 @@
  * @package    pidocumenter
  * @copyright  Copyright (c) 2008 - 2009 pidocumenter (http://www.figaf.com/services/pi-documenter.html)
  * @license    http://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt	LGPL
- * @version    0.9 , 2009-04-28
+ * @version    0.9.1 , 2009-05-26
  */
 
 class ExcelDocumenter {
@@ -91,6 +91,11 @@ class ExcelDocumenter {
     {
         $this->inputfile = $inputfile;
     }
+    
+   /**
+    * The perform documentation class. Used to retrive information from the parsing. 
+    */
+   private $performDocumentation;
 
 	/**
 	 * Directory for where the files are stored
@@ -125,6 +130,13 @@ class ExcelDocumenter {
     * @var ObjectInfo
     */
 	private $mappingInfo;
+	
+	/**
+	 * Sould the Excel file be saved. If generating multiply documents,
+	 * it can cause problems if too many writer instances are created.  
+	 */
+	
+	private $writeFile=true;
 
 	/**
 	 * Constructor for the Excel documenter
@@ -132,21 +144,23 @@ class ExcelDocumenter {
 	 * @param unknown_type $dir
 	 * @param unknown_type $generateExcel2007
 	 */
-	public function __construct($dir, $inputfile, $generateFormat,$oldFormat){
+	public function __construct($dir, $inputfile, $generateFormat,$oldFormat ,$writeFile=true){
 
 		/** PHPExcel */
-		include_once 'PHPExcel.php';
+		require_once 'PHPExcel.php';
 
 		/** PHPExcel_IOFactory */
-		include_once 'PHPExcel/IOFactory.php';
-		include_once 'PerformDocumentation.php';
-		include_once 'Util/Extract.php';
+		require_once 'PHPExcel/IOFactory.php';
+		require_once 'PerformDocumentation.php';
+		require_once 'Util/Extract.php';
 
 		$this->directory = $dir;
 
 		$this->generateFormat = $generateFormat;
 		$this->oldExcel2007 = $oldFormat;
 		$this->inputfile = $inputfile;
+		
+		$this->writeFile  = $writeFile;
 
 	}
 
@@ -161,7 +175,7 @@ class ExcelDocumenter {
 		$objPHPExcel = new PHPExcel();
 
 		$objPHPExcel->getActiveSheet()->setTitle('Documentation');
-
+		
 
 		// Set active sheet index to the first sheet, so Excel opens this as the first sheet
 		$objPHPExcel->setActiveSheetIndex(0);
@@ -240,7 +254,7 @@ class ExcelDocumenter {
 
 		$metadata_string = file_get_contents($this->directory.'/metadata');
 		// create the documentation mapping
-		$xml  = new PerformDocumentation( $metadata_string, $objPHPExcel,$oldCommentMap);
+		$this->performDocumentation  = new PerformDocumentation( $metadata_string, $objPHPExcel,$oldCommentMap);
 
 		switch ($this->generateFormat){
 			case self::EXCEL2007:
@@ -264,11 +278,21 @@ class ExcelDocumenter {
 
 		
 		// write content
+		if($this->writeFile){
 		$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, $excelType);
 		$objWriter->save($this->directory .'/output.xlsx');
-
+		}
        $this->excelObject = $objPHPExcel;
 
+	}
+	
+	/**
+	 * Gets the udf map from document
+	 */
+	public function getUdfMap(){
+		
+		return $this->performDocumentation->getUdfMap();
+		
 	}
 }
 

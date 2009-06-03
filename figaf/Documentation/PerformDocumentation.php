@@ -77,11 +77,13 @@ class PerformDocumentation {
 		$this->docPHPExcel = $objPHPExcel;
 		$this->oldDocMap = $oldCommentMap;
 		$this->parser = xml_parser_create();
+		// Change & to allow for parsing of data in CDATA.
+		$dataRewritten  = str_replace ("&", "&amp;", $data);
 		xml_set_object($this->parser, $this);
 		//        xml_parser_set_option($this->parser, XML_OPTION_CASE_FOLDING, false);
 		xml_set_element_handler($this->parser, "start_element", "end_element");
 		xml_set_character_data_handler($this->parser, "cdata");
-		xml_parse($this->parser, $data);
+		xml_parse($this->parser, $dataRewritten);
 
 	}
 
@@ -130,8 +132,13 @@ class PerformDocumentation {
 
 				if ($this->linenumber >= 10) {
 					$this->formatCurrentLine();
+					//if no data exists for an element create a empty string
+					if(strlen($this->mapRichText->getPlainText())==0)
+						$this->mapRichText->createText('xxxxxxxxxxxxxxxxxxxxxxxxxx');
+				
 				}
 				$this->linenumber++;
+				
 				$this->mapRichText = new PHPExcel_RichText($this->docPHPExcel->getActiveSheet()->getCell('C' . $this->linenumber));
 
 				$this->currentPath = $attrs['PATH'];
@@ -247,15 +254,21 @@ class PerformDocumentation {
 			if ($name == 'SIGNATURE') {
 				$this->udfMap[$this->udfIndex]['SIGNATURE'] = $this->udfParameters;
 				$this->udfParameters = "";
-			} else
+			} else if($name=='FUNCTIONSTORAGE'){
+				$this->inFunctionStorage = false;
+			}
+			else
+			 // Java code
 				if ($name == 'TEXT') {
-					$this->udfMap[$this->udfIndex]['CODE'] = $this->currentString;
+					$this->udfMap[$this->udfIndex]['CODE'] =($this->currentString);
+					$this->currentString="";
 				} else
-					if ($name == 'functionmodel') { // the current function has been found
+					if ($name == 'FUNCTIONMODEL') { // the current function has been found
 						$this->udfIndex++;
 					} else {
 						$this->udfMap[$this->udfIndex][$name] = $this->currentString;
 					}
+				$this->currentString = "";
 
 		}
 
@@ -286,7 +299,7 @@ class PerformDocumentation {
 		$this->docPHPExcel->getActiveSheet()->getStyle('A1')->getBorders()->getBottom()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
 		$this->docPHPExcel->getActiveSheet()->duplicateStyle( $this->docPHPExcel->getActiveSheet()->getStyle('A1'), 'A1:D1' );
 		
-		
+		  
 			for ($i = 0; $i < count($this->udfMap); $i++) {
 				$this->docPHPExcel->getActiveSheet()->setCellValue('A' . ($i +2), $this->udfMap[$i]["NAME"]);
 				$this->docPHPExcel->getActiveSheet()->setCellValue('B' . ($i +2), $this->udfMap[$i]["SIGNATURE"]);
@@ -310,10 +323,13 @@ class PerformDocumentation {
 
 	private function cdata($parser, $cdata) {
 		// save the current string
-		if ($this->inFuncParameters || $this->inFunctionStorage) {
-
+		if ($this->inFuncParameters ) {
 			$this->currentString = $cdata;
-
+		}
+		// functions can contain multiply parse elements, therefore
+		// do they need to be concated
+		if($this->inFunctionStorage){
+			$this->currentString .= $cdata;
 		}
 	}
 	/**

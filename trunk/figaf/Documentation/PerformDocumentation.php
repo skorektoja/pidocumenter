@@ -134,7 +134,7 @@ class PerformDocumentation {
 					$this->formatCurrentLine();
 					//if no data exists for an element create a empty string
 					if(strlen($this->mapRichText->getPlainText())==0)
-						$this->mapRichText->createText('xxxxxxxxxxxxxxxxxxxxxxxxxx');
+						$this->mapRichText->createText(' ');
 				
 				}
 				$this->linenumber++;

@@ -111,6 +111,16 @@ class PerformDocumentation {
 		}
 	}
 
+	
+	private function addObjectUID ($objid){
+		$objLink = $this->mapRichText->createTextRun(" Links to:".$objid);
+		$objLink->getFont()->setBold(true);
+		$objLink->getFont()->setColor( new PHPExcel_Style_Color( PHPExcel_Style_Color::COLOR_RED) );
+
+	}
+		// create links between two documents using the object_uid
+				// Then insert the UID in front of the brick. 
+				
 	private function start_element($parser, $name, $attrs) {
 
 		if (($name == 'MAPPINGTOOL' or $name == 'PROJECT') and array_key_exists('VERSION', $attrs)) {
@@ -145,8 +155,12 @@ class PerformDocumentation {
 				$this->index = 0;
 
 			} else
-				if ($name == 'BRICK' and $attrs['TYPE'] == 'Src') {
-
+				// The brick is a link to an other entry
+				if ($name == 'BRICK' and array_key_exists('OBJECT_UID', $attrs) and !array_key_exists('TYPE', $attrs) ){
+					$this->mapRichText->createText($this->getIndentation($this->index) ."Link:". $attrs['OBJECT_UID']);
+				}
+			   if ($name == 'BRICK' and $attrs['TYPE'] == 'Src') {
+			
 					if (array_key_exists('CONTEXT', $attrs)) {
 
 						$this->mapRichText->createText($this->getIndentation($this->index));
@@ -156,18 +170,29 @@ class PerformDocumentation {
 					} else {
 						$this->mapRichText->createText($this->getIndentation($this->index) . $attrs['PATH']);
 					}
+					// create links between two documents using the object_uid
+				// Then insert the UID in front of the brick. object_uid
+					if (array_key_exists('OBJECT_UID', $attrs)){
+								   $this->addObjectUID($attrs['OBJECT_UID'] );
+						}
 					$this->index++;
 
 				} else
 					if ($name == 'BRICK' and $attrs['TYPE'] == 'Func') {
 						$this->mapRichText->createText($this->getIndentation($this->index));
-						$functionName = $this->mapRichText->createTextRun($attrs['FNAME']);
+						$functionName = $this->mapRichText->createTextRun(	$attrs['FNAME']);
 						$functionName->getFont()->setBold(true);
 
 						$this->index++;
 						//create placeholder for parameters
 						$this->functionParams[$this->index] = $this->mapRichText->createTextRun(' ');
 						$this->currentFunctionName = $attrs['FNAME'];
+						
+					// create links between two documents using the object_uid
+				// Then insert the UID in front of the brick. object_uid
+					if (array_key_exists('OBJECT_UID', $attrs)){
+								   $this->addObjectUID($attrs['OBJECT_UID'] );
+						}
 
 					} else
 						if ($name == 'PROPERTY' and $attrs['NAME'] == 'switchedOff') {
@@ -190,7 +215,8 @@ class PerformDocumentation {
 									// we are defining parameters
 									if (array_key_exists('NAME', $attrs)) {
 										$this->currentParameterName = $attrs['NAME'];
-									}
+										
+									}	
 								} else
 									if ($this->inFuncParameters == true) {
 										// we are defining parameters
@@ -224,6 +250,7 @@ class PerformDocumentation {
 			if (strlen($this->currentString) > 0 or strlen($this->currentParameterName) > 0) {
 				$this->parameterString .= (strlen($this->parameterString) > 0 ? ' ' : '') . $this->currentParameterName . '=' . $this->currentString;
 			}
+		
 			$this->currentString = "";
 			$this->currentParameterName = "";
 
@@ -231,7 +258,7 @@ class PerformDocumentation {
 			if ($name == 'BINDINGS' and $this->inFuncParameters and $this->piversion == 'XI7.1') {
 				// end the parameter gatering for PI 7.1
 				$this->inFuncParameters = false;
-
+			
 				$this->functionParams[$this->index]->setText(' ' . $this->parameterString . $this->currentString);
 
 				$this->currentString = "";

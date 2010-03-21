@@ -154,11 +154,12 @@ class PerformDocumentation {
 				$this->currentPath = $attrs['PATH'];
 				$this->index = 0;
 
+
 			} else
 				// The brick is a link to an other entry
 				if ($name == 'BRICK' and array_key_exists('OBJECT_UID', $attrs) and !array_key_exists('TYPE', $attrs) ){
-					$this->mapRichText->createText($this->getIndentation($this->index) ."Link:". $attrs['OBJECT_UID']);
-				}
+					$this->mapRichText->createText($this->getIndentation($this->index) ."Link:". $attrs['OBJECT_UID']. "\n");
+				} 
 			   if ($name == 'BRICK' and $attrs['TYPE'] == 'Src') {
 			
 					if (array_key_exists('CONTEXT', $attrs)) {
@@ -258,8 +259,14 @@ class PerformDocumentation {
 			if ($name == 'BINDINGS' and $this->inFuncParameters and $this->piversion == 'XI7.1') {
 				// end the parameter gatering for PI 7.1
 				$this->inFuncParameters = false;
-			
-				$this->functionParams[$this->index]->setText(' ' . $this->parameterString . $this->currentString);
+				
+			try {
+				if(!is_null($this->functionParams[$this->index] ))
+    				$this->functionParams[$this->index]->setText(' ' . $this->parameterString . $this->currentString);
+			} catch (Exception $e) {
+    			echo 'Caught exception: ',  $e->getMessage(), "\n";
+			}
+				
 
 				$this->currentString = "";
 				$this->parameterString = "";
